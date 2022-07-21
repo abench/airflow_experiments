@@ -37,9 +37,9 @@ unzip_data = BashOperator(
 extract_data = BashOperator(
         task_id = "extract_data",
         bash_command = (
-            "grep \"^uk \" /tmp/wikipageviews | awk '{print $3 \" \" $2}'"            
+            "grep \"^uk \\|^uk.m \" /tmp/wikipageviews | awk '{print $3 \" \" $2}'"            
             "| sort -r|head -n50 > "
-            "/tmp/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.hour-1}}.txt"
+            "/tmp/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.day}}_{{execution_date.hour-1}}.txt"
             ),
         dag=dag,
         )
