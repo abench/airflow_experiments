@@ -47,7 +47,7 @@ extract_data = BashOperator(
 show_statistics = BashOperator(
         task_id = "show_statistics",
         bash_command = (
-            "cat /tmp/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.hour-1}}.txt"
+            "cat /tmp/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.day}}_{{execution_date.hour-1}}.txt"
             ),
         dag = dag,
         )
