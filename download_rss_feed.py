@@ -17,7 +17,7 @@ dag = DAG(
 
 download_rss_file = BashOperator(
     task_id="download_rss_file",
-    bash_command="curl -o /tmp/rss_{{ds}}.xml -L 'https://tokar.ua/feed'",
+    bash_command="curl -o /opt/data/rss_{{ds}}.xml -L 'https://tokar.ua/feed'",
     dag=dag,
 )
 
@@ -35,15 +35,15 @@ xml_to_json = PythonOperator(
     task_id="xml_to_json",
     python_callable=_xml_to_json,
     op_kwargs={
-        "input_file":"/tmp/rss_{{ ds }}.xml",
-        "output_file":"/tmp/rss_{{ ds }}.json",
+        "input_file":"/opt/data/rss_{{ ds }}.xml",
+        "output_file":"/opt/data/rss_{{ ds }}.json",
     },
     dag=dag,
 )
 
 notify = BashOperator(
     task_id="notify",
-    bash_command='cat /tmp/rss_{{ds}}.json',
+    bash_command='cat /opt/data/rss_{{ds}}.json',
     dag=dag,
 )
 

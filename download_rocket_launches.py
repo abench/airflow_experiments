@@ -16,23 +16,23 @@ dag = DAG(
 
 download_launches = BashOperator(
     task_id="download_launches",
-    bash_command="curl -o /tmp/launches.json -L 'https://ll.thespacedevs.com/2.0.0/launch/upcoming'",
+    bash_command="curl -o /opt/data/launches.json -L 'https://ll.thespacedevs.com/2.0.0/launch/upcoming'",
     dag=dag,
 )
 
 def _get_pictures():
     # Ensure directory exists
-    pathlib.Path("/tmp/images").mkdir(parents=True, exist_ok=True)
+    pathlib.Path("/opt/data/images").mkdir(parents=True, exist_ok=True)
 
     # Download all pictures in launches.json
-    with open("/tmp/launches.json") as f:
+    with open("/opt/data/launches.json") as f:
         launches = json.load(f)
         image_urls = [launch["image"] for launch in launches["results"]]
         for image_url in image_urls:
             try:
                 response = requests.get(image_url)
                 image_filename = image_url.split("/")[-1]
-                target_file = f"/tmp/images/{image_filename}"
+                target_file = f"/opt/data/images/{image_filename}"
                 with open(target_file,"wb") as f:
                     f.write(response.content)
                 print(f"Downloaded {image_url} to {target_file}")
@@ -48,7 +48,7 @@ get_pictures = PythonOperator(
 
 notify = BashOperator(
     task_id="notify",
-    bash_command='echo "There are now $(ls /tmp/images | wc -l) images." ',
+    bash_command='echo "There are now $(ls /opt/data/images | wc -l) images." ',
     dag=dag,
 )
 

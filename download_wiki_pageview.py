@@ -12,7 +12,7 @@ dag = DAG(
 get_data = BashOperator(
         task_id = "get_data",
         bash_command=(
-            "curl -o /tmp/wikipageviews.gz "
+            "curl -o /opt/data/wikipageviews.gz "
             "https://dumps.wikimedia.org/other/pageviews/"
             "{{ execution_date.year }}/"
             "{{ execution_date.year }}-"
@@ -29,7 +29,7 @@ get_data = BashOperator(
 unzip_data = BashOperator(
         task_id = "unzip_data",
         bash_command = (
-            "gunzip --force /tmp/wikipageviews.gz"
+            "gunzip --force /opt/data/wikipageviews.gz"
             ),
         dag=dag,
         )
@@ -37,9 +37,9 @@ unzip_data = BashOperator(
 extract_data = BashOperator(
         task_id = "extract_data",
         bash_command = (
-            "grep \"^uk \\|^uk.m \" /tmp/wikipageviews | awk '{print $3 \" \" $2}'"            
+            "grep \"^uk \\|^uk.m \" /opt/data/wikipageviews | awk '{print $3 \" \" $2}'"            
             "| sort -r|head -n50 > "
-            "/tmp/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.day}}_{{execution_date.hour-1}}.txt"
+            "/opt/data/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.day}}_{{execution_date.hour-1}}.txt"
             ),
         dag=dag,
         )
@@ -47,7 +47,7 @@ extract_data = BashOperator(
 show_statistics = BashOperator(
         task_id = "show_statistics",
         bash_command = (
-            "cat /tmp/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.day}}_{{execution_date.hour-1}}.txt"
+            "cat /opt/data/wikipageviews_statistics_{{execution_date.year}}_{{execution_date.month}}_{{execution_date.day}}_{{execution_date.hour-1}}.txt"
             ),
         dag = dag,
         )
