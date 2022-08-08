@@ -10,7 +10,7 @@ data_directory = "/opt/data"
 db_file_path = "/opt/data/wikipageviews.sqlite"
 file_list = os.listdir(data_directory)
 insert_sql = """
-        insert into page_views (views_num, page_name, view_date) values( ?, ? ,?);
+        insert into page_views (views_num, page_name, view_date, view_time) values( ?, ? ,?,?);
 """
 
 select_sql = """
@@ -23,15 +23,21 @@ select_sql = """
 def _create_date_string(filename:str)->str:
     splitted_file_name = os.path.splitext(os.path.basename(filename))[0].split("_")
     print(splitted_file_name)
-    # date time format for sqlite YYYY-MM-DD HH:MM "{04:}_{02:}_{02:} {02:}".
-    date_string = "{:04}-{:02}-{:02} {:02}:00".format(int(splitted_file_name[2]),
+    # date time format for sqlite YYYY-MM-DD "{04:}-{02:}-{02:}".
+    date_string = "{:04}-{:02}-{:02}".format(int(splitted_file_name[2]),
                                                       int(splitted_file_name[3]),
                                                       int(splitted_file_name[4]),
                                                       int(splitted_file_name[5]))
     print(date_string)
     return date_string
 
-
+def _create_time_string(filename:str)->str:
+    splitted_file_name = os.path.splitext(os.path.basename(filename))[0].split("_")
+    print(splitted_file_name)
+    # date time format for sqlite YYYY-MM-DD HH:MM "{04:}_{02:}_{02:} {02:}".
+    time_string = "{:02}:00".format(int(splitted_file_name[5]))
+    print(time_string)
+    return time_string
 
 
 dag = DAG(
@@ -79,6 +85,7 @@ extract_data = BashOperator(
 def _insert_data(**kwargs):
     input_file_name = kwargs["input_file"]
     date_string = _create_date_string(input_file_name)
+    time_string = _create_time_string(input_file_name)
     try:
         conn = sqlite3.connect(db_file_path)
         cursor = conn.cursor()
@@ -90,6 +97,7 @@ def _insert_data(**kwargs):
             for line in file_data:
                 data_record = line.strip().split(" ")
                 data_record.append(date_string)
+                data_record.append(time_string)
                 print(data_record)
                 cursor.execute(insert_sql, data_record)
                 print(cursor.rowcount)
